@@ -118,7 +118,7 @@ class GridStruct
     end)
   end
 
-  def diagonals_at(row,column)
+  def diagonals(row,column)
     selectors = []
 
     first = diagonal_builder({row: row, column: column})

@@ -217,32 +217,40 @@ describe ::GridStruct do
     end
   end
 
-  describe '#diagonals_at' do
+  describe '#diagonals' do
     it 'returns an array' do
-      expect(grid.diagonals_at(0,0)).to be_kind_of Array
+      expect(grid.diagonals(0,0)).to be_kind_of Array
     end
 
     context 'when fetching diagonals not from a corner' do
       it 'returns 2 selectors' do
-        diagonals = sudoku_grid.diagonals_at(4,4)
+        diagonals = sudoku_grid.diagonals(4,4)
         expect(diagonals.size).to be 2
         expect(diagonals.first).to be_kind_of(GridStruct::Selector)
         expect(diagonals.last).to be_kind_of(GridStruct::Selector)
       end
 
       it 'returns the diagonals crossing the given coordinates' do
-        diagonals = sudoku_grid.diagonals_at(4,4)
+        diagonals = sudoku_grid.diagonals(4,4)
         expect(diagonals.first.to_a).to eq [0,10,20,30,40,50,60,70,80]
         expect(diagonals.last.to_a).to eq [8,16,24,32,40,48,56,64,72]
+      end
+
+      context 'the returned selectors' do
+        it 'approprietly modify its matching element' do
+          diagonals = sudoku_grid.diagonals(4,4)
+          diagonals.first[4] = -100
+          expect(sudoku_grid.get(4,4))
+        end
       end
     end
 
     context 'when fetching diagonals from a corner' do
       it 'only returns 1 diagonal selector' do
-        expect(sudoku_grid.diagonals_at(0,0).size).to be 1
-        expect(sudoku_grid.diagonals_at(0,sudoku_grid.columns - 1).size).to be 1
-        expect(sudoku_grid.diagonals_at(sudoku_grid.rows - 1,0).size).to be 1
-        expect(sudoku_grid.diagonals_at(sudoku_grid.rows - 1, sudoku_grid.columns - 1).size).to be 1
+        expect(sudoku_grid.diagonals(0,0).size).to be 1
+        expect(sudoku_grid.diagonals(0,sudoku_grid.columns - 1).size).to be 1
+        expect(sudoku_grid.diagonals(sudoku_grid.rows - 1,0).size).to be 1
+        expect(sudoku_grid.diagonals(sudoku_grid.rows - 1, sudoku_grid.columns - 1).size).to be 1
       end
     end
   end
