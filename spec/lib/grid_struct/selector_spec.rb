@@ -22,6 +22,14 @@ describe ::GridStruct::Selector do
       expect(selector[2]).to eq 68
       expect(selector[3]).to eq 114
     end
+
+    context 'when mapped index is nil' do
+      let(:broken_selector) { described_class.new(grid, [0,nil,nil,nil]) }
+
+      it 'returns nil' do
+        expect(broken_selector[1]).to be_nil
+      end
+    end
   end
 
   describe '#[]=' do
@@ -32,6 +40,24 @@ describe ::GridStruct::Selector do
       expect(grid.store[0]).to eq -10
       expect(grid.store[3]).to eq -3
       expect(grid.store[34]).to eq 'hello world'
+    end
+
+    context 'when mapped index is nil' do
+      let(:broken_selector) { described_class.new(grid, [0,nil,nil,nil]) }
+
+      it 'ignores action' do
+        store = grid.store
+        broken_selector[1] = 100
+        expect(grid.store).to eq store
+      end
+    end
+  end
+
+  describe '#dimensions' do
+    it 'sets the virtual dimensions of the current selection' do
+      selector.dimensions(2,3)
+      expect(selector.rows).to eq 2
+      expect(selector.columns).to eq 3
     end
   end
 

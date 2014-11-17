@@ -124,25 +124,25 @@ describe ::GridStruct do
 
     context 'when slice is equal to the grid' do
       it 'iterates a single time with a copy of the current grid' do
-        grid = nil
+        selector = nil
         sudoku_grid.each_slice(9,9) do |sub_grid|
-          grid = sub_grid
+          selector = sub_grid
         end
-        expect(grid).to eq sudoku_grid
+        expect(selector.to_grid).to eq sudoku_grid
       end
     end
 
     context 'when slice is bigger than the grid' do
       it 'iterates a single time with content of current grid with extra edges' do
-        grid = nil
+        selector = nil
         sudoku_grid.each_slice(10,10) do |sub_grid|
-          grid = sub_grid
+          selector = sub_grid
         end
         sudoku_grid.rows.times.each do |row_index|
-          expect(grid.row(row_index).to_a).to eq (sudoku_grid.row(row_index).to_a + [nil])
+          expect(selector.to_grid.row(row_index).to_a).to eq (sudoku_grid.row(row_index).to_a + [nil])
         end
         sudoku_grid.columns.times.each do |column_index|
-          expect(grid.column(column_index).to_a).to eq (sudoku_grid.column(column_index).to_a + [nil])
+          expect(selector.to_grid.column(column_index).to_a).to eq (sudoku_grid.column(column_index).to_a + [nil])
         end
       end
     end
@@ -251,6 +251,27 @@ describe ::GridStruct do
         expect(sudoku_grid.diagonals(0,sudoku_grid.columns - 1).size).to be 1
         expect(sudoku_grid.diagonals(sudoku_grid.rows - 1,0).size).to be 1
         expect(sudoku_grid.diagonals(sudoku_grid.rows - 1, sudoku_grid.columns - 1).size).to be 1
+      end
+    end
+  end
+
+  describe '#slice' do
+    it 'returns a selector' do
+      expect(sudoku_grid.slice(0, rows: 3, columns: 3)).to be_kind_of(GridStruct::Selector)
+    end
+
+    context 'the returned selector' do
+      it 'modifies its matching element' do
+        slice = sudoku_grid.slice(0, rows: 3, columns: 3)
+        slice[4] = -100
+        expect(sudoku_grid.get(1,1)).to eq -100
+      end
+
+      context 'when slice goes out of bound' do
+        it 'adds extras when converting to grid' do
+          slice = sudoku_grid.slice(2, rows: 2, columns: 4)
+          expect(slice.to_grid.to_a).to eq [8,nil,nil,nil,17,nil,nil,nil]
+        end
       end
     end
   end

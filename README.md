@@ -284,16 +284,16 @@ corner_diagonal.size # => 1
 corner_diagonal.first.to_a # => [0,40,80]
 ```
 
-### Slice - !!! Not final, will be subject to change !!!
+#### Slice
 
-A slice returns a new grid. Modifying that new sliced grid won't affect the parent grid.
+Imagine a slice as a projection of a section of your grid.
 Use the ``slice`` method to access a single slice.
 
 ```
-GridStruct#slice_at(slice_index, rows: slice_rows, columns: slice_columns) # => <#GridStruct ...>
+GridStruct#slice(slice_index, rows: slice_rows, columns: slice_columns) # => #<GridStruct::Selector ...>
 ```
 
-Let say you are manipulating a sudoku grid, and you want to access the middle 3x3 square
+In the following example, we are manipulating a sudoku grid, and we want to access the middle 3x3 square
 
 ```ruby
 sudoku_grid = GridStruct.new(9,9)
@@ -302,7 +302,7 @@ sudoku_grid.map! do |v, r, c|
   (r * sudoku_grid.columns) + c + 1
 end
 
-sudoku_grid.slice_at(4, rows: 3, columns: 3) # => #<GridStruct:0x007fb3d16e4e70 @columns=3, @rows=3, @store=[31, 32, 33, 40, 41, 42, 49, 50, 51]>
+sudoku_grid.slice(4, rows: 3, columns: 3) # => #<GridStruct:0x007fb3d16e4e70 @columns=3, @rows=3, @store=[31, 32, 33, 40, 41, 42, 49, 50, 51]>
 ```
 
 Use the ``each_slice`` method to go through each slices

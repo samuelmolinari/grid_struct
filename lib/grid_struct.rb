@@ -59,7 +59,7 @@ class GridStruct
       sub_columns.ceil.times.each do |sub_column|
 
         index = sub_column + (sub_row * sub_columns)
-        yield(slice_at(index, rows: rows, columns: columns), index)
+        yield(slice(index, rows: rows, columns: columns), index)
 
       end
     end
@@ -71,8 +71,7 @@ class GridStruct
 
   ##
   # TODO Improve
-  def slice_at(index,dimensions)
-    grid = GridStruct.new(dimensions[:rows], dimensions[:columns])
+  def slice(index,dimensions)
     rows = dimensions[:rows]
     columns = dimensions[:columns]
     sub_columns = (@columns / columns.to_f).ceil
@@ -80,7 +79,6 @@ class GridStruct
     sub_row = index / sub_columns
     sub_column = index - (sub_row * sub_columns)
 
-    store = []
     indexes = []
     rows.times.each do |r|
       start_index = (r * @columns) +
@@ -96,14 +94,12 @@ class GridStruct
         end_index -= extras
       end
 
-      indexes += (start_index...end_index).to_a
-      final_row = @store[start_index...end_index] || []
-      final_row.fill(nil,final_row.size...columns)
-      store += final_row
+      final_row_indexes = (start_index...end_index).to_a
+      final_row_indexes.fill(nil,final_row_indexes.size...columns)
+      indexes += final_row_indexes
     end
-    grid.instance_variable_set(:@store, store)
 
-    return grid
+    return GridStruct::Selector.new(self, *indexes).dimensions(rows,columns)
   end
 
   def row(n)
