@@ -1,7 +1,9 @@
 # GridStruct
 
-[![Build Status](https://travis-ci.org/samuelmolinari/grid_struct.svg?branch=master)](https://travis-ci.org/samuelmolinari/grid_struct)
 [![Gem Version](https://badge.fury.io/rb/grid_struct.svg)](http://badge.fury.io/rb/grid_struct)
+[![Build Status](https://travis-ci.org/samuelmolinari/grid_struct.svg?branch=master)](https://travis-ci.org/samuelmolinari/grid_struct)
+[![Code Climate](https://codeclimate.com/github/samuelmolinari/grid_struct/badges/gpa.svg)](https://codeclimate.com/github/samuelmolinari/grid_struct)
+[![Test Coverage](https://codeclimate.com/github/samuelmolinari/grid_struct/badges/coverage.svg)](https://codeclimate.com/github/samuelmolinari/grid_struct)
 
 Manipulate grid like structure in Ruby.
 
