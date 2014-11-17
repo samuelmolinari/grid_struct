@@ -117,7 +117,7 @@ sudoku_grid.get(1,0) # => "Row: 1, Col: 0"
 
 You can iterate through the grid using the each method
 
-```ruby
+```
 GridStruct#each { |value, row, column| # Do something }
 ```
 
