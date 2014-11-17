@@ -189,9 +189,133 @@ grid.map_column!(2) { |value| value * 10 }
 grid.store # => [0,1,20,3,4,50,6,7,80]
 ```
 
-### Selection
+### Selectors
 
-TODO
+Selector gives you access to line of values within the grid, and allows you to
+only act on that line. Each selector return a (or an array of) GridStruct::Selector.
+
+#### Overview
+
+A selector has the following instances:
+
+- ``grid``: The grid it is selecting from
+- ``indexes``: An array of indexes mapping to the selected values in the grid store
+
+```ruby
+grid = GridStruct.new(3,3)
+
+grid.map! do |value, row, column|
+  (row * grid.columns + column) * 10
+end
+
+grid.row(0) # => #<GridStruct::Selector:0x007fb3d11decf0 @grid=#<GridStruct:0x007fb3d15541f0 @columns=3, @rows=3, @store=[0, 10, 20, 30, 40, 50, 60, 70, 80]>, @indexes=[0, 1, 2]>
+```
+
+You can retrieve and update values using ``[]``. It will map the action to the grid.
+
+```ruby
+first_row = grid.row(0)
+
+first_row.to_a # => [0,10,20]
+
+first_row[0] # => 0
+first_row[1] # => 10
+first_row[2] # => 20
+
+first_row[0] = -100
+
+grid.to_a # => [-100,10,20,30,40,50,60,70,80]
+
+```
+
+#### Row
+
+To select a specific row, use the method ``row``
+
+```
+GridStruct#row(row_number)
+```
+
+```ruby
+rows = []
+
+# Fetch selector for every rows
+grid.rows.times.each do |row_index|
+  rows[row_index] = grid.row(row_index)
+end
+```
+
+#### Column
+
+To select a specific column, use the method ``column``
+
+```
+GridStruct#column(column_number)
+```
+
+```ruby
+columns = []
+
+# Fetch selector for every columns
+grid.columns.times.each do |column_index|
+  columns[column_index] = grid.column(column_index)
+end
+```
+
+#### Diagonals
+
+The diagonals retrieval works slightly differently from the two previous methods.
+In order to retrieve diagonals, you must provide the coordinates of a cell in the grid. This will retrieve the diagonals that cross through that specific cell.
+The returned array can be of size 0 (no diagonals found, for example, in a grid of size 1), 1 (when retrieving diagonals from the corners of the grid) or 2.
+
+```
+GridStruct#diagonals(1,1) # => [#<GridStruct::Selector ...>, #<GridStruct::Selector ...>]
+```
+
+```ruby
+diagonals = grid.diagonals(1,1)
+
+diagonals.first.to_a # => [0,40,80]
+diagonals.last.to_a # => [30,40,60]
+
+corner_diagonal = grid.diagonals(0,0) # fetch diagonals from top left corner
+
+corner_diagonal.size # => 1
+corner_diagonal.first.to_a # => [0,40,80]
+```
+
+### Slice - !!! Not final, will be subject to change !!!
+
+A slice returns a new grid. Modifying that new sliced grid won't affect the parent grid.
+Use the ``slice`` method to access a single slice.
+
+```
+GridStruct#slice_at(slice_index, rows: slice_rows, columns: slice_columns) # => <#GridStruct ...>
+```
+
+Let say you are manipulating a sudoku grid, and you want to access the middle 3x3 square
+
+```ruby
+sudoku_grid = GridStruct.new(9,9)
+
+sudoku_grid.map! do |v, r, c|
+  (r * sudoku_grid.columns) + c + 1
+end
+
+sudoku_grid.slice_at(4, rows: 3, columns: 3) # => #<GridStruct:0x007fb3d16e4e70 @columns=3, @rows=3, @store=[31, 32, 33, 40, 41, 42, 49, 50, 51]>
+```
+
+Use the ``each_slice`` method to go through each slices
+
+```
+GridStruct#each_slice(slice_rows,slice_columns) { |slice, slice_index| # Do something }
+```
+
+```ruby
+sudoku_grid.each_slice(3,3) do |slice, index|
+  # Do something
+end
+```
 
 ## Contributing
 
