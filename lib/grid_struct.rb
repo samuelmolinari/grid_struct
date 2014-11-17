@@ -26,23 +26,14 @@ class GridStruct
     return self
   end
 
-  def map_row!(n)
-    @columns.times.each do |column|
-      index = get_index(n,column)
-      value = @store[index]
-      @store[index] = yield(value,column)
-    end
-    return self
+  def map_row!(n, &block)
+    return map_line!(n, @columns, true, &block)
   end
 
-  def map_column!(n)
-    @rows.times.each do |row|
-      index = get_index(row,n)
-      value = @store[index]
-      @store[index] = yield(value,row)
-    end
-    return self
+  def map_column!(n, &block)
+    return map_line!(n, @rows, false, &block)
   end
+
 
   def each
     @store.fill(nil,@store.size...size).each.with_index do |value, index|
@@ -79,25 +70,7 @@ class GridStruct
     sub_row = index / sub_columns
     sub_column = index - (sub_row * sub_columns)
 
-    indexes = []
-    rows.times.each do |r|
-      start_index = (r * @columns) +
-                    (sub_row * rows * @columns) +
-                    (sub_column * columns)
-      end_index = start_index + columns
-
-      start_row = get_row_column_at(start_index)[:row]
-      end_row = get_row_column_at(end_index)[:row]
-
-      if start_row != end_row
-        extras = [0,(end_index - @columns)].max % @columns
-        end_index -= extras
-      end
-
-      final_row_indexes = (start_index...end_index).to_a
-      final_row_indexes.fill(nil,final_row_indexes.size...columns)
-      indexes += final_row_indexes
-    end
+    indexes = retrieve_sliced_indexes(rows,columns,sub_row,sub_column)
 
     return GridStruct::Selector.new(self, *indexes).dimensions(rows,columns)
   end
@@ -139,7 +112,49 @@ class GridStruct
     @store == other.instance_variable_get(:@store)
   end
 
+  def within_bounds?(row,column)
+    row_within_bounds?(row) && column_within_bounds?(column)
+  end
+
   protected
+
+  def fit_selection_within_same_row(start_index, end_index)
+    start_row = get_row_column_at(start_index)[:row]
+    end_row = get_row_column_at(end_index)[:row]
+
+    if start_row != end_row
+      extras = [0,(end_index - @columns)].max % @columns
+      end_index -= extras
+    end
+
+    return start_index...end_index
+  end
+
+  def retrieve_sliced_indexes(rows, columns, sub_row, sub_column)
+    rows.times.inject([]) do |memo, r|
+      start_index = (r * @columns) +
+        (sub_row * rows * @columns) +
+        (sub_column * columns)
+      end_index = start_index + columns
+
+      final_row_indexes = fit_selection_within_same_row(start_index, end_index).to_a
+      final_row_indexes.fill(nil,final_row_indexes.size...columns)
+
+      memo += final_row_indexes
+    end
+  end
+
+  def line_within_bounds?(n, axis_size)
+    n >= 0 && n < axis_size
+  end
+
+  def row_within_bounds?(row)
+    line_within_bounds?(row, @rows)
+  end
+
+  def column_within_bounds?(column)
+    line_within_bounds?(column, @columns)
+  end
 
   def get_index(row,column)
     (row * @columns) + column
@@ -156,31 +171,36 @@ class GridStruct
     column = coordinates[:column]
     index = get_index(row,column)
 
-    if !diagonal_indexes.include?(index) &&
-        row >= 0 &&
-        column >= 0 &&
-        row < @rows &&
-        column < @columns
-
+    if !diagonal_indexes.include?(index) && within_bounds?(row, column)
       diagonal_indexes.method(action).call(get_index(row,column))
 
-      diagonal_builder({ row: row - (row_direction * 1),
-                         column: column - (column_direction * 1) },
-                         row_direction,
-                         column_direction,
-                         diagonal_indexes,
-                         :unshift)
-
-      diagonal_builder({ row: row + (row_direction * 1),
-                         column: column + (column_direction * 1) },
-                         row_direction,
-                         column_direction,
-                         diagonal_indexes,
-                         :push)
-
+      fetch_diagonal_index(row, column, row_direction, column_direction, diagonal_indexes, -1)
+      fetch_diagonal_index(row, column, row_direction, column_direction, diagonal_indexes, 1)
     end
 
     return diagonal_indexes
+  end
+
+  def fetch_diagonal_index(row, column, row_direction, column_direction, diagonal_indexes, sign)
+    row = row + sign * row_direction
+    column = column + sign * column_direction
+    action = sign > 0 ? :push : :unshift
+
+    diagonal_builder({ row: row,
+                       column: column },
+                     row_direction,
+                     column_direction,
+                     diagonal_indexes,
+                     action)
+  end
+
+  def map_line!(n, other_axis_size, is_row)
+    other_axis_size.times.each do |other_axis|
+      index = is_row ? get_index(n,other_axis) : get_index(other_axis,n)
+      value = @store[index]
+      @store[index] = yield(value,other_axis)
+    end
+    return self
   end
 
 end
