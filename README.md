@@ -87,7 +87,7 @@ As you can see, the ``store`` always starts as an empty array unless you decide 
 
 To set a value, pass the row and column you want to fill, and a block that will return the value
 
-```ruby
+```
 GridStruct#set(row, column) { value }
 ```
 
@@ -105,7 +105,7 @@ sudoku_grid.store # => ["Hello World",nil,nil,nil,nil,nil,nil,nil,"Row: 1, Col: 
 
 To get a value at a specific coordinate, use th ``get`` method.
 
-```ruby
+```
 GridStruct#get(row, column) # => value
 ```
 
@@ -127,7 +127,7 @@ GridStruct#each { |value, row, column| # Do something }
 
 Incase you need to update each element within the grid, use the ``map!`` method
 
-```ruby
+```
 GridStruct#map! { |value, row, column| # Return new value  }
 ```
 
@@ -142,7 +142,7 @@ grid.store # => [0,1,2,3,4,5,6,7,8]
 
 You can update a specific row if needed, for example, if we want to update the middle row
 
-```ruby
+```
 GridStruct#map_row! { |value, column| # Return new value  }
 ```
 
@@ -167,7 +167,7 @@ grid.store # => [0,1,2,30,40,50,6,7,8]
 
 You can update a specific row if needed, for example, if we want to update the middle row
 
-```ruby
+```
 GridStruct#map_column! { |value, row| # Return new value  }
 ```
 
