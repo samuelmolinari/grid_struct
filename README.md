@@ -1,5 +1,7 @@
 # GridStruct
 
+[![Build Status](https://travis-ci.org/samuelmolinari/grid_struct.svg?branch=master)](https://travis-ci.org/samuelmolinari/grid_struct)
+
 Manipulate grid like structure in Ruby.
 
 ## Installation
